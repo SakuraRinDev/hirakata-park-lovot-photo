@@ -161,26 +161,6 @@ body {
   border: 6px solid rgba(232, 201, 168, 0.8);
   position: relative;
   overflow: hidden;
-  animation: frame-glow 3s ease-in-out infinite;
-}
-
-@keyframes frame-glow {
-
-  0%,
-  100% {
-    box-shadow:
-      0 8px 32px rgba(212, 165, 116, 0.3),
-      inset 0 -4px 12px rgba(212, 165, 116, 0.2),
-      inset 0 4px 8px rgba(255, 255, 255, 0.5);
-  }
-
-  50% {
-    box-shadow:
-      0 8px 40px rgba(212, 165, 116, 0.5),
-      0 0 20px rgba(200, 91, 82, 0.2),
-      inset 0 -4px 12px rgba(212, 165, 116, 0.3),
-      inset 0 4px 8px rgba(255, 255, 255, 0.6);
-  }
 }
 
 .circular-frame::before {
