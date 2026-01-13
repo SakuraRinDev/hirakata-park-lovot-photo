@@ -506,7 +506,9 @@ export default function Home() {
                 ) : (
                   <motion.div
                     key="initial-buttons"
-                    variants={itemVariants}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
                     className="flex flex-col sm:flex-row gap-3"
                   >
                     <motion.button
