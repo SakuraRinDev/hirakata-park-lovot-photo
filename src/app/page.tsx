@@ -8,7 +8,6 @@ import DebugPanel from "@/components/DebugPanel";
 import ImageGallery from "@/components/ImageGallery";
 import { resizeImage } from "@/lib/imageUtils";
 import { debug } from "@/lib/debug";
-import { saveImage } from "@/lib/imageStorage";
 
 type AppState = "camera" | "preview" | "generating" | "result";
 
@@ -142,147 +141,10 @@ export default function Home() {
     }
   }, [capturedImage]);
 
-  // LOVOTキャラクター合成
-  const handleGenerate = useCallback(() => {
-    generateImage("/api/generate-multi", "画像合成を開始します");
-  }, [generateImage]);
-
   // ポスター生成
   const handleGeneratePoster = useCallback(() => {
     generateImage("/api/generate-poster", "ポスター生成を開始します");
   }, [generateImage]);
-
-  // フリーポスター生成（自由度高め）
-  const handleFreePoster = useCallback(() => {
-    generateImage("/api/generate-poster-free", "フリーポスター生成を開始します");
-  }, [generateImage]);
-
-  // エージェントポスター（2段階生成）
-  const handleAgentPoster = useCallback(async () => {
-    if (!capturedImage) return;
-
-    setState("generating");
-    setError(null);
-
-    const startTime = Date.now();
-    debug.info("エージェントポスター生成を開始します（2段階処理）");
-
-    try {
-      // 画像をリサイズ
-      debug.info("画像をリサイズ中...");
-      const resizedImage = await resizeImage(capturedImage, 1024);
-
-      const resizedInfo = await debug.getImageInfo(resizedImage);
-      debug.success("リサイズ完了", resizedInfo);
-
-      setDebugImageInfo((prev: any) => ({
-        ...prev,
-        resized: {
-          size: resizedInfo.size,
-          width: resizedInfo.dimensions.width,
-          height: resizedInfo.dimensions.height,
-        },
-      }));
-
-      // ステップ1: ポーズ変更したLOVOT画像を生成
-      debug.info("ステップ1: ポーズ変更LOVOT画像を生成中...");
-      const step1Response = await fetch("/api/generate-multi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lovotImageBase64: resizedImage }),
-      });
-
-      const step1Data = await step1Response.json();
-
-      if (!step1Response.ok) {
-        throw new Error(step1Data.error || "ステップ1: LOVOT画像生成に失敗");
-      }
-
-      debug.success("ステップ1完了: LOVOT画像生成成功");
-
-      // ステップ1の結果を自動保存（IndexedDB）
-      await saveImage({
-        imageData: step1Data.imageData,
-        model: "gemini-3-pro",
-        modelName: "エージェント Step1",
-        originalImage: resizedImage,
-      });
-      // ステップ1の結果をローカルファイルに保存
-      const timestamp1 = new Date().toISOString().replace(/[:.]/g, "-");
-      await fetch("/api/save-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageData: step1Data.imageData,
-          filename: `agent_step1_${timestamp1}.png`,
-        }),
-      });
-      debug.info("ステップ1の画像を保存しました（ローカル + IndexedDB）");
-      setGalleryRefreshTrigger((prev) => prev + 1);
-
-      // ステップ2: 生成したLOVOT画像をポスターに合成
-      debug.info("ステップ2: ポスターに合成中...");
-      const step2Response = await fetch("/api/generate-poster-agent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ generatedLovotImageBase64: step1Data.imageData }),
-      });
-
-      const step2Data = await step2Response.json();
-
-      if (!step2Response.ok) {
-        throw new Error(step2Data.error || "ステップ2: ポスター合成に失敗");
-      }
-
-      const totalTime = Date.now() - startTime;
-      debug.success(`エージェントポスター完了 (${(totalTime / 1000).toFixed(2)}秒)`);
-
-      setDebugApiInfo({
-        requestTime: startTime,
-        responseTime: Date.now(),
-        totalTime,
-        status: step2Response.status,
-      });
-
-      const generatedInfo = await debug.getImageInfo(step2Data.imageData);
-      setDebugImageInfo((prev: any) => ({
-        ...prev,
-        generated: {
-          size: generatedInfo.size,
-          width: generatedInfo.dimensions.width,
-          height: generatedInfo.dimensions.height,
-        },
-      }));
-
-      // ステップ2の結果を自動保存（IndexedDB）
-      await saveImage({
-        imageData: step2Data.imageData,
-        model: "gemini-3-pro",
-        modelName: "エージェント Step2",
-        originalImage: resizedImage,
-      });
-      // ステップ2の結果をローカルファイルに保存
-      const timestamp2 = new Date().toISOString().replace(/[:.]/g, "-");
-      await fetch("/api/save-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageData: step2Data.imageData,
-          filename: `agent_step2_${timestamp2}.png`,
-        }),
-      });
-      debug.info("ステップ2の画像を保存しました（ローカル + IndexedDB）");
-      setGalleryRefreshTrigger((prev) => prev + 1);
-
-      setGeneratedImage(step2Data.imageData);
-      setState("result");
-    } catch (err) {
-      console.error("Agent poster error:", err);
-      debug.error("エージェントポスターエラー", err);
-      setError(err instanceof Error ? err.message : "エラーが発生しました");
-      setState("preview");
-    }
-  }, [capturedImage]);
 
   // リセット
   const handleReset = useCallback(() => {
@@ -332,28 +194,13 @@ export default function Home() {
               <button onClick={handleRetake} className="flex-1 btn-secondary">
                 撮り直す
               </button>
-              <button onClick={handleGenerate} className="flex-1 btn-primary">
-                合成する！
+              <button
+                onClick={handleGeneratePoster}
+                className="flex-1 btn-primary"
+              >
+                ポスターを作成
               </button>
             </div>
-            <button
-              onClick={handleGeneratePoster}
-              className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-amber-600 hover:to-orange-600 transition"
-            >
-              🎡 ポスターを作る！
-            </button>
-            <button
-              onClick={handleAgentPoster}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-purple-600 hover:to-pink-600 transition"
-            >
-              🤖 エージェントポスター
-            </button>
-            <button
-              onClick={handleFreePoster}
-              className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-bold py-3 px-6 rounded-xl shadow-lg hover:from-teal-600 hover:to-cyan-600 transition"
-            >
-              🎨 フリーポスター
-            </button>
           </div>
         </div>
       )}

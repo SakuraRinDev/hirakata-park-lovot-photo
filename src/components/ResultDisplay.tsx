@@ -27,12 +27,46 @@ export default function ResultDisplay({
     downloadImage(imageData, `lovot-hirakata-${timestamp}.png`);
   };
 
-  // Xでシェア
-  const handleShareX = () => {
-    const text = encodeURIComponent(
-      "Lovotと一緒に特別な写真を作ったよ！🤖✨ #ひらかたパーク #Lovot"
-    );
-    window.open(`https://twitter.com/intent/tweet?text=${text}`, "_blank");
+  // Xでシェア（Web Share APIを使用）
+  const handleShareX = async () => {
+    const shareText = "LOVOTと一緒にひらパーポスターを作ったよ！ #ひらかたパーク #LOVOT";
+
+    // Web Share APIが使える場合は画像付きでシェア
+    if (navigator.share && navigator.canShare) {
+      try {
+        // Base64を Blob に変換
+        const byteCharacters = atob(imageData);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: "image/png" });
+        const file = new File([blob], "lovot-hirakata-poster.png", { type: "image/png" });
+
+        const shareData = {
+          text: shareText,
+          files: [file],
+        };
+
+        if (navigator.canShare(shareData)) {
+          await navigator.share(shareData);
+          return;
+        }
+      } catch (error) {
+        console.log("Web Share API failed:", error);
+      }
+    }
+
+    // フォールバック：画像をクリップボードにコピーしてからTwitterを開く
+    const success = await copyImageToClipboard(imageData);
+    if (success) {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 3000);
+    }
+    // Twitterを開く（テキストのみ）
+    const encodedText = encodeURIComponent(shareText);
+    window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, "_blank");
   };
 
   // Instagramでシェア（クリップボードにコピー）
