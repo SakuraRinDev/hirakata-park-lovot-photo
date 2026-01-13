@@ -35,7 +35,7 @@ body {
   min-height: 100dvh;
 }
 
-/* 背景画像の円形リビールアニメーション */
+/* 背景画像のフェードインアニメーション */
 .background-reveal {
   position: fixed;
   top: 0;
@@ -47,39 +47,15 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 0;
-  animation: circleReveal 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  transform-origin: center center;
+  animation: fadeIn 1s ease-out forwards;
 }
 
-@keyframes circleReveal {
+@keyframes fadeIn {
   0% {
-    clip-path: circle(0% at 50% 50%);
     opacity: 0;
-    filter: blur(16px) saturate(1.2);
-    transform: scale(1.08);
-  }
-  25% {
-    clip-path: circle(30% at 50% 50%);
-    opacity: 0.7;
-    filter: blur(8px) saturate(1.1);
-  }
-  50% {
-    clip-path: circle(70% at 50% 50%);
-    opacity: 0.9;
-    filter: blur(3px) saturate(1.05);
-    transform: scale(1.02);
-  }
-  75% {
-    clip-path: circle(100% at 50% 50%);
-    opacity: 1;
-    filter: blur(1px) saturate(1.02);
-    transform: scale(1.005);
   }
   100% {
-    clip-path: circle(150% at 50% 50%);
     opacity: 1;
-    filter: blur(0px) saturate(1);
-    transform: scale(1);
   }
 }
 
