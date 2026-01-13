@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import GeneratingOverlay from "@/components/GeneratingOverlay";
 import ResultDisplay from "@/components/ResultDisplay";
 import DebugPanel from "@/components/DebugPanel";
+import MusicPlayer from "@/components/MusicPlayer";
 import { resizeImage } from "@/lib/imageUtils";
 import { debug } from "@/lib/debug";
 
@@ -366,6 +367,9 @@ export default function Home() {
 
   return (
     <div className="flex-1 flex flex-col">
+      {/* BGM */}
+      <MusicPlayer />
+
       {/* デバッグパネル */}
       <DebugPanel imageInfo={debugImageInfo} apiInfo={debugApiInfo} />
 

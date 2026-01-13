@@ -1,5 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Zen_Maru_Gothic } from "next/font/google";
 import "./globals.css";
+
+const zenMaruGothic = Zen_Maru_Gothic({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  display: "swap",
+  preload: false,
+});
 
 export const metadata: Metadata = {
   title: "LOVOT × ひらパー",
@@ -28,7 +36,7 @@ export default function RootLayout({
       <head>
         <link rel="preload" href="/background.png" as="image" />
       </head>
-      <body className="antialiased sparkle-bg">
+      <body className={`${zenMaruGothic.className} antialiased sparkle-bg`}>
         {/* 背景画像（中央から円形に広がるアニメーション） */}
         <div className="background-reveal" aria-hidden="true" />
         <div className="min-h-dvh flex flex-col relative z-10">
