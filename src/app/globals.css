@@ -2,8 +2,8 @@
 
 /* LOVOT MEMORY STUDIO テーマカラー */
 :root {
-  --lovot-primary: #E85A4F;
-  --lovot-primary-dark: #C94A40;
+  --lovot-primary: #C85B52;
+  --lovot-primary-dark: #B04A42;
   --lovot-cream: #F5E6D3;
   --lovot-cream-light: #FFF9F5;
   --lovot-gold: #D4A574;
@@ -12,12 +12,12 @@
   --lovot-text-light: #8B7355;
   --lovot-pink: #F8E8E0;
   --lovot-pink-light: #FCF0EA;
-  --lovot-heart: #E85A4F;
+  --lovot-heart: #C85B52;
 }
 
 @theme {
-  --color-lovot-primary: #E85A4F;
-  --color-lovot-primary-dark: #C94A40;
+  --color-lovot-primary: #C85B52;
+  --color-lovot-primary-dark: #B04A42;
   --color-lovot-cream: #F5E6D3;
   --color-lovot-cream-light: #FFF9F5;
   --color-lovot-gold: #D4A574;
@@ -85,6 +85,17 @@ body {
   box-shadow:
     0 4px 30px rgba(0, 0, 0, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  animation: float 6s ease-in-out infinite;
+  backdrop-filter: blur(10px);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
 }
 
 /* 円形フレーム */
@@ -100,6 +111,23 @@ body {
   border: 6px solid rgba(232, 201, 168, 0.8);
   position: relative;
   overflow: hidden;
+  animation: frame-glow 3s ease-in-out infinite;
+}
+
+@keyframes frame-glow {
+  0%, 100% {
+    box-shadow:
+      0 8px 32px rgba(212, 165, 116, 0.3),
+      inset 0 -4px 12px rgba(212, 165, 116, 0.2),
+      inset 0 4px 8px rgba(255, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow:
+      0 8px 40px rgba(212, 165, 116, 0.5),
+      0 0 20px rgba(200, 91, 82, 0.2),
+      inset 0 -4px 12px rgba(212, 165, 116, 0.3),
+      inset 0 4px 8px rgba(255, 255, 255, 0.6);
+  }
 }
 
 .circular-frame::before {
@@ -114,6 +142,37 @@ body {
   pointer-events: none;
 }
 
+/* 円形フレームの輝くボーダーアニメーション */
+.circular-frame::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  right: -6px;
+  bottom: -6px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    rgba(212, 165, 116, 0.6),
+    transparent,
+    rgba(200, 91, 82, 0.4),
+    transparent
+  );
+  animation: border-rotate 4s linear infinite;
+  z-index: -1;
+  opacity: 0.5;
+}
+
+@keyframes border-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* カメラアイコン */
 .camera-icon {
   color: var(--lovot-gold);
@@ -122,7 +181,7 @@ body {
 
 /* プライマリボタン（赤） */
 .btn-primary {
-  background: linear-gradient(180deg, #E85A4F 0%, #D14A40 100%);
+  background: linear-gradient(180deg, #C85B52 0%, #B04A42 100%);
   color: white;
   padding: 16px 32px;
   border-radius: 9999px;
@@ -130,7 +189,7 @@ body {
   font-size: 1rem;
   transition: all 0.2s;
   box-shadow:
-    0 4px 16px rgba(232, 90, 79, 0.4),
+    0 4px 16px rgba(200, 91, 82, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
   display: flex;
   align-items: center;
@@ -163,7 +222,7 @@ body {
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 6px 20px rgba(232, 90, 79, 0.5),
+    0 6px 20px rgba(200, 91, 82, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
@@ -210,12 +269,34 @@ body {
   background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
   border: 4px solid var(--lovot-primary);
   box-shadow:
-    0 4px 16px rgba(232, 90, 79, 0.3),
+    0 4px 16px rgba(200, 91, 82, 0.3),
     inset 0 2px 4px rgba(255, 255, 255, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+  position: relative;
+}
+
+.shutter-button::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--lovot-primary);
+  opacity: 0;
+  animation: shutter-pulse 2s ease-out infinite;
+}
+
+@keyframes shutter-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
 }
 
 .shutter-button:hover {
@@ -231,6 +312,16 @@ body {
   height: 56px;
   border-radius: 50%;
   background: linear-gradient(180deg, var(--lovot-primary) 0%, var(--lovot-primary-dark) 100%);
+  animation: shutter-inner-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes shutter-inner-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(200, 91, 82, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 12px 4px rgba(200, 91, 82, 0.3);
+  }
 }
 
 /* ローディングアニメーション */
