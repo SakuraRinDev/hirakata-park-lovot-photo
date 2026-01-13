@@ -4,9 +4,10 @@ import { useRef, useState, useCallback, useEffect, ChangeEvent } from "react";
 
 interface CameraCaptureProps {
   onCapture: (imageData: string) => void;
+  onBack?: () => void;
 }
 
-export default function CameraCapture({ onCapture }: CameraCaptureProps) {
+export default function CameraCapture({ onCapture, onBack }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -131,18 +132,17 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      {/* エラー表示 */}
-      {error && (
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg text-center w-full max-w-md">
-          <p>{error}</p>
-          <button
-            onClick={startCamera}
-            className="mt-2 text-sm underline"
-          >
-            再試行
-          </button>
-        </div>
+    <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+      {/* 戻るボタン */}
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="absolute top-20 left-4 p-2 text-lovot-text hover:text-lovot-primary transition"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
       )}
 
       {/* 非表示のファイル入力 */}
@@ -154,82 +154,100 @@ export default function CameraCapture({ onCapture }: CameraCaptureProps) {
         className="hidden"
       />
 
-      {/* カメラ未起動時 */}
-      {!isStreaming && !error && (
-        <div className="flex flex-col items-center gap-6 py-8">
-          <div className="text-center">
-            <p className="text-lg font-medium text-hirakata-dark mb-2">
-              あなたのLovotを撮影しよう！
-            </p>
-            <p className="text-sm text-gray-600">
-              カメラで撮影するか、画像を選択してください
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3">
+      {/* メインコンテナ */}
+      <div className="main-container w-full max-w-md px-6 py-8">
+        {/* エラー表示 */}
+        {error && (
+          <div className="bg-red-50 text-red-600 p-4 rounded-xl text-center mb-4">
+            <p className="text-sm">{error}</p>
             <button
               onClick={startCamera}
-              className="btn-primary flex items-center justify-center gap-2"
+              className="mt-2 text-sm underline"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              カメラを起動
-            </button>
-            <button
-              onClick={openFileSelector}
-              className="btn-secondary flex items-center justify-center gap-2"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-              画像を選択
+              再試行
             </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* カメラプレビュー */}
-      <div className={`relative w-full max-w-md ${!isStreaming ? "hidden" : ""}`}>
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className={`w-full rounded-2xl shadow-lg ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
-          style={{ aspectRatio: "4/3", objectFit: "cover" }}
-        />
+        {/* カメラ未起動時 */}
+        {!isStreaming && !error && (
+          <>
 
-        {/* ガイドオーバーレイ */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-8 border-2 border-white/50 rounded-xl" />
-          <div className="absolute bottom-12 left-0 right-0 text-center">
-            <p className="text-white text-sm font-medium drop-shadow-lg">
-              Lovotを枠内に入れてね
-            </p>
-          </div>
-        </div>
+            {/* 円形フレーム（プレースホルダー） */}
+            <div className="flex justify-center mb-6">
+              <div className="circular-frame flex items-center justify-center">
+                <svg className="w-16 h-16 camera-icon" viewBox="0 0 48 48" fill="none">
+                  <rect x="12" y="18" width="24" height="18" rx="3" fill="currentColor" opacity="0.5" />
+                  <rect x="18" y="14" width="8" height="4" rx="1" fill="currentColor" opacity="0.4" />
+                  <circle cx="24" cy="27" r="6" fill="currentColor" opacity="0.3" />
+                </svg>
+              </div>
+            </div>
 
-        {/* カメラ切り替えボタン */}
-        <button
-          onClick={toggleCamera}
-          className="absolute top-3 right-3 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-          </svg>
-        </button>
+            {/* ボタン */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={startCamera}
+                className="btn-primary flex-1"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                カメラを起動
+              </button>
+              <button
+                onClick={openFileSelector}
+                className="btn-secondary flex-1"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                画像を選択
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* カメラプレビュー */}
+        {isStreaming && (
+          <>
+
+            {/* 円形フレーム（カメラ映像） */}
+            <div className="flex justify-center mb-6 relative">
+              <div className="circular-frame">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  muted
+                  className={`w-full h-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""}`}
+                />
+              </div>
+
+              {/* カメラ切り替えボタン */}
+              <button
+                onClick={toggleCamera}
+                className="absolute top-2 right-2 bg-white/80 text-lovot-text p-2 rounded-full hover:bg-white transition shadow-md"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
+
+            {/* シャッターボタン */}
+            <div className="flex justify-center">
+              <button
+                onClick={capturePhoto}
+                className="shutter-button"
+              >
+                <div className="shutter-button-inner" />
+              </button>
+            </div>
+          </>
+        )}
       </div>
-
-      {/* 撮影ボタン */}
-      {isStreaming && (
-        <button
-          onClick={capturePhoto}
-          className="w-20 h-20 rounded-full bg-white border-4 border-hirakata-primary shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition"
-        >
-          <div className="w-14 h-14 rounded-full bg-hirakata-primary" />
-        </button>
-      )}
 
       {/* 非表示のcanvas（撮影用） */}
       <canvas ref={canvasRef} className="hidden" />

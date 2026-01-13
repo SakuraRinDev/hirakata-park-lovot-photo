@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Lovot フォト合成 | ひらかたパーク",
-  description: "あなたのLovotを特別な写真に合成しよう！",
+  title: "LOVOT MEMORY STUDIO | HIRAKATA PARK",
+  description: "LOVOT MEMORY STUDIO",
   openGraph: {
-    title: "Lovot フォト合成 | ひらかたパーク",
-    description: "あなたのLovotを特別な写真に合成しよう！",
+    title: "LOVOT MEMORY STUDIO | HIRAKATA PARK",
+    description: "LOVOT MEMORY STUDIO",
     type: "website",
   },
 };
@@ -18,6 +18,18 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
+// LOVOTアイコンコンポーネント
+function LovotIcon({ className = "w-6 h-6" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="12" cy="10" r="8" fill="currentColor" opacity="0.9" />
+      <circle cx="9" cy="9" r="1.5" fill="white" />
+      <circle cx="15" cy="9" r="1.5" fill="white" />
+      <ellipse cx="12" cy="2" rx="2" ry="1.5" fill="currentColor" />
+    </svg>
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -25,13 +37,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className="antialiased">
+      <body className="antialiased sparkle-bg">
         <div className="min-h-dvh flex flex-col">
           {/* ヘッダー */}
-          <header className="bg-hirakata-primary text-white py-3 px-4 shadow-lg">
-            <div className="max-w-md mx-auto flex items-center justify-center gap-2">
-              <h1 className="text-lg font-bold tracking-wide">
-                Lovot フォト合成
+          <header className="py-4 px-4">
+            <div className="max-w-lg mx-auto flex items-center justify-center gap-2">
+              <LovotIcon className="w-6 h-6 text-lovot-text" />
+              <h1 className="text-sm font-bold tracking-widest text-lovot-text">
+                LOVOT MEMORY STUDIO
               </h1>
             </div>
           </header>
@@ -42,8 +55,13 @@ export default function RootLayout({
           </main>
 
           {/* フッター */}
-          <footer className="bg-hirakata-dark text-white/60 text-xs py-3 text-center">
-            <p>&copy; ひらかたパーク</p>
+          <footer className="py-4 px-4 text-center">
+            <p className="text-xs text-lovot-text-light tracking-wider mb-1">
+              &copy; HIRAKATA PARK × LOVOT
+            </p>
+            <p className="text-[10px] text-lovot-text-light tracking-wider">
+              Created by 株式会社SakuraRin
+            </p>
           </footer>
         </div>
       </body>

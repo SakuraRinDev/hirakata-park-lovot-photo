@@ -1,61 +1,232 @@
 @import "tailwindcss";
 
-/* ひらかたパーク テーマカラー */
+/* LOVOT MEMORY STUDIO テーマカラー */
 :root {
-  --hirakata-primary: #E60012;
-  --hirakata-secondary: #FFD700;
-  --hirakata-dark: #1A1A1A;
-  --hirakata-light: #FFF9F0;
+  --lovot-primary: #E85A4F;
+  --lovot-primary-dark: #C94A40;
+  --lovot-cream: #F5E6D3;
+  --lovot-cream-light: #FFF9F5;
+  --lovot-gold: #D4A574;
+  --lovot-gold-light: #E8C9A8;
+  --lovot-text: #5C4A3D;
+  --lovot-text-light: #8B7355;
+  --lovot-pink: #F8E8E0;
+  --lovot-pink-light: #FCF0EA;
+  --lovot-heart: #E85A4F;
 }
 
 @theme {
-  --color-hirakata-primary: #E60012;
-  --color-hirakata-secondary: #FFD700;
-  --color-hirakata-dark: #1A1A1A;
-  --color-hirakata-light: #FFF9F0;
+  --color-lovot-primary: #E85A4F;
+  --color-lovot-primary-dark: #C94A40;
+  --color-lovot-cream: #F5E6D3;
+  --color-lovot-cream-light: #FFF9F5;
+  --color-lovot-gold: #D4A574;
+  --color-lovot-gold-light: #E8C9A8;
+  --color-lovot-text: #5C4A3D;
+  --color-lovot-text-light: #8B7355;
+  --color-lovot-pink: #F8E8E0;
+  --color-lovot-pink-light: #FCF0EA;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  background-color: var(--hirakata-light);
-  color: var(--hirakata-dark);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background: linear-gradient(180deg, #FCF0EA 0%, #F8E8E0 50%, #F5E0D5 100%);
+  color: var(--lovot-text);
   min-height: 100dvh;
 }
 
-/* ボタン共通スタイル */
+/* 背景のキラキラエフェクト */
+.sparkle-bg {
+  position: relative;
+  overflow: hidden;
+}
+
+.sparkle-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    radial-gradient(2px 2px at 10% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 100%),
+    radial-gradient(2px 2px at 30% 10%, rgba(255, 255, 255, 0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 30%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+    radial-gradient(2px 2px at 70% 15%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 25%, rgba(255, 255, 255, 0.6) 0%, transparent 100%),
+    radial-gradient(2px 2px at 20% 80%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 90%, rgba(255, 255, 255, 0.7) 0%, transparent 100%),
+    radial-gradient(2px 2px at 60% 85%, rgba(255, 255, 255, 0.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 80% 95%, rgba(255, 255, 255, 0.5) 0%, transparent 100%),
+    radial-gradient(2px 2px at 15% 50%, rgba(255, 255, 255, 0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 55%, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
+  pointer-events: none;
+  animation: sparkle 8s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* メインコンテナ */
+.main-container {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.3) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  box-shadow:
+    0 4px 30px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* 円形フレーム */
+.circular-frame {
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #F5E6D3 0%, #E8D5C0 100%);
+  box-shadow:
+    0 8px 32px rgba(212, 165, 116, 0.3),
+    inset 0 -4px 12px rgba(212, 165, 116, 0.2),
+    inset 0 4px 8px rgba(255, 255, 255, 0.5);
+  border: 6px solid rgba(232, 201, 168, 0.8);
+  position: relative;
+  overflow: hidden;
+}
+
+.circular-frame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.6) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* カメラアイコン */
+.camera-icon {
+  color: var(--lovot-gold);
+  opacity: 0.7;
+}
+
+/* プライマリボタン（赤） */
 .btn-primary {
-  background-color: var(--hirakata-primary);
+  background: linear-gradient(180deg, #E85A4F 0%, #D14A40 100%);
   color: white;
-  padding: 1rem 2rem;
+  padding: 16px 32px;
   border-radius: 9999px;
   font-weight: bold;
-  font-size: 1.125rem;
+  font-size: 1rem;
   transition: all 0.2s;
-  box-shadow: 0 4px 14px rgba(230, 0, 18, 0.3);
+  box-shadow:
+    0 4px 16px rgba(232, 90, 79, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 100%;
+  }
 }
 
 .btn-primary:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(230, 0, 18, 0.4);
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 20px rgba(232, 90, 79, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:active {
-  transform: scale(0.98);
+  transform: translateY(0);
 }
 
+/* セカンダリボタン（白） */
 .btn-secondary {
-  background-color: white;
-  color: var(--hirakata-dark);
-  padding: 0.75rem 1.5rem;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F8F4F0 100%);
+  color: var(--lovot-text);
+  padding: 16px 32px;
   border-radius: 9999px;
-  font-weight: 600;
-  border: 2px solid var(--hirakata-dark);
+  font-weight: bold;
+  font-size: 1rem;
+  border: 2px solid rgba(212, 165, 116, 0.3);
   transition: all 0.2s;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn-secondary:hover {
-  background-color: var(--hirakata-dark);
-  color: white;
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  border-color: rgba(212, 165, 116, 0.5);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* シャッターボタン */
+.shutter-button {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0F0F0 100%);
+  border: 4px solid var(--lovot-primary);
+  box-shadow:
+    0 4px 16px rgba(232, 90, 79, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.shutter-button:hover {
+  transform: scale(1.05);
+}
+
+.shutter-button:active {
+  transform: scale(0.95);
+}
+
+.shutter-button-inner {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--lovot-primary) 0%, var(--lovot-primary-dark) 100%);
 }
 
 /* ローディングアニメーション */
@@ -85,4 +256,25 @@ body {
 
 .animate-spin-slow {
   animation: spin-slow 3s linear infinite;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  .circular-frame {
+    width: 240px;
+    height: 240px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 14px 24px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .circular-frame {
+    width: 200px;
+    height: 200px;
+  }
 }
