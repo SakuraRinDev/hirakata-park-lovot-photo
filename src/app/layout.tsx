@@ -41,11 +41,16 @@ export default function RootLayout({
         <div className="min-h-dvh flex flex-col">
           {/* ヘッダー */}
           <header className="py-4 px-4">
-            <div className="max-w-lg mx-auto flex items-center justify-center gap-2">
-              <LovotIcon className="w-6 h-6 text-lovot-text" />
-              <h1 className="text-sm font-bold tracking-widest text-lovot-text">
-                LOVOT MEMORY STUDIO
-              </h1>
+            <div className="max-w-lg mx-auto flex flex-col items-center justify-center">
+              <div className="flex items-center gap-2">
+                <LovotIcon className="w-6 h-6 text-lovot-text" />
+                <h1 className="text-sm font-bold tracking-widest text-lovot-text">
+                  LOVOT MEMORY STUDIO
+                </h1>
+              </div>
+              <p className="text-[10px] text-lovot-text tracking-wider mt-1">
+                Created by SakuraRin Creative
+              </p>
             </div>
           </header>
 
@@ -59,8 +64,8 @@ export default function RootLayout({
             <p className="text-xs text-lovot-text-light tracking-wider mb-1">
               &copy; HIRAKATA PARK × LOVOT
             </p>
-            <p className="text-[10px] text-lovot-text-light tracking-wider">
-              Created by 株式会社SakuraRin
+            <p className="text-[10px] text-lovot-text tracking-wider">
+              Support by トキワバレー
             </p>
           </footer>
         </div>
