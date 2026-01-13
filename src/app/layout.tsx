@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "LOVOT MEMORY STUDIO | HIRAKATA PARK",
-  description: "LOVOT MEMORY STUDIO",
+  title: "LOVOT × ひらパー",
+  description: "LOVOT × ひらパー - Support by 株式会社SakuraRin",
   openGraph: {
-    title: "LOVOT MEMORY STUDIO | HIRAKATA PARK",
-    description: "LOVOT MEMORY STUDIO",
+    title: "LOVOT × ひらパー",
+    description: "LOVOT × ひらパー - Support by 株式会社SakuraRin",
     type: "website",
   },
 };
@@ -17,18 +17,6 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
 };
-
-// LOVOTアイコンコンポーネント
-function LovotIcon({ className = "w-6 h-6" }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-      <circle cx="12" cy="10" r="8" fill="currentColor" opacity="0.9" />
-      <circle cx="9" cy="9" r="1.5" fill="white" />
-      <circle cx="15" cy="9" r="1.5" fill="white" />
-      <ellipse cx="12" cy="2" rx="2" ry="1.5" fill="currentColor" />
-    </svg>
-  );
-}
 
 export default function RootLayout({
   children,
@@ -43,16 +31,13 @@ export default function RootLayout({
       <body className="antialiased sparkle-bg">
         <div className="min-h-dvh flex flex-col">
           {/* ヘッダー */}
-          <header className="py-4 px-4">
+          <header className="py-4 px-4 bg-transparent">
             <div className="max-w-lg mx-auto flex flex-col items-center justify-center">
-              <div className="flex items-center gap-2">
-                <LovotIcon className="w-6 h-6 text-lovot-text" />
-                <h1 className="text-sm font-bold tracking-widest text-lovot-text">
-                  LOVOT MEMORY STUDIO
-                </h1>
-              </div>
-              <p className="text-[10px] text-lovot-text tracking-wider mt-1">
-                Created by SakuraRin Creative
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-wide text-white [text-shadow:none]">
+                LOVOT × ひらパー
+              </h1>
+              <p className="text-sm text-white/90 tracking-wider mt-1 [text-shadow:none]">
+                Support by 株式会社SakuraRin
               </p>
             </div>
           </header>
