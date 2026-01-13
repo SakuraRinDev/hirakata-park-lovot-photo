@@ -37,6 +37,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="preload" href="/background.png" as="image" />
+      </head>
       <body className="antialiased sparkle-bg">
         <div className="min-h-dvh flex flex-col">
           {/* ヘッダー */}
