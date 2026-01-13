@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getAllImages, deleteImage, clearAllImages, SavedImage } from "@/lib/imageStorage";
+import { getAllImages, deleteImage, clearAllImages, SavedImage } from "@/legacy/lib/imageStorage";
 import { downloadImage } from "@/lib/imageUtils";
 
 interface ImageGalleryProps {
