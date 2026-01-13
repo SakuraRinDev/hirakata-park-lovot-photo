@@ -3,10 +3,10 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "LOVOT × ひらパー",
-  description: "LOVOT × ひらパー - Support by 株式会社SakuraRin",
+  description: "LOVOT × ひらパー - Support by SakuraRin Creative",
   openGraph: {
     title: "LOVOT × ひらパー",
-    description: "LOVOT × ひらパー - Support by 株式会社SakuraRin",
+    description: "LOVOT × ひらパー - Support by SakuraRin Creative",
     type: "website",
   },
 };
@@ -29,15 +29,17 @@ export default function RootLayout({
         <link rel="preload" href="/background.png" as="image" />
       </head>
       <body className="antialiased sparkle-bg">
-        <div className="min-h-dvh flex flex-col">
+        {/* 背景画像（中央から円形に広がるアニメーション） */}
+        <div className="background-reveal" aria-hidden="true" />
+        <div className="min-h-dvh flex flex-col relative z-10">
           {/* ヘッダー */}
           <header className="py-4 px-4 bg-transparent">
             <div className="max-w-lg mx-auto flex flex-col items-center justify-center">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-wide text-white [text-shadow:none]">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-wide text-white [-webkit-text-stroke:1px_black] [paint-order:stroke_fill]">
                 LOVOT × ひらパー
               </h1>
-              <p className="text-sm text-white/90 tracking-wider mt-1 [text-shadow:none]">
-                Support by 株式会社SakuraRin
+              <p className="text-sm text-white tracking-wider mt-1 [-webkit-text-stroke:0.5px_black] [paint-order:stroke_fill]">
+                Support by SakuraRin Creative
               </p>
             </div>
           </header>

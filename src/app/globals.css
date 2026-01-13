@@ -30,13 +30,49 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Sans", "Hiragino Kaku Gothic ProN", Meiryo, sans-serif;
+  background-color: var(--lovot-cream);
+  color: var(--lovot-text);
+  min-height: 100dvh;
+}
+
+/* 背景画像の円形リビールアニメーション */
+.background-reveal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-image: url('/background.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
-  color: var(--lovot-text);
-  min-height: 100dvh;
+  z-index: 0;
+  animation: circleReveal 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: center center;
+}
+
+@keyframes circleReveal {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+    opacity: 0;
+    filter: blur(20px) saturate(1.2);
+    transform: scale(1.1);
+  }
+  30% {
+    opacity: 0.6;
+    filter: blur(12px) saturate(1.15);
+  }
+  60% {
+    clip-path: circle(60% at 50% 50%);
+    filter: blur(4px) saturate(1.05);
+    transform: scale(1.02);
+  }
+  100% {
+    clip-path: circle(150% at 50% 50%);
+    opacity: 1;
+    filter: blur(0px) saturate(1);
+    transform: scale(1);
+  }
 }
 
 /* 背景のキラキラエフェクト */
