@@ -635,7 +635,7 @@ export default function Home() {
             exit="exit"
             className="flex-1"
           >
-            <ResultDisplay imageData={generatedImage} onReset={handleReset} />
+            <ResultDisplay imageData={generatedImage} />
           </motion.div>
         )}
       </AnimatePresence>
