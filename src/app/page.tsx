@@ -29,12 +29,13 @@ const pageVariants = {
 };
 
 const containerVariants = {
-  initial: { opacity: 0, scale: 0.95 },
+  initial: { opacity: 0, scale: 0.95, backdropFilter: "blur(0px)" },
   animate: {
     opacity: 1,
     scale: 1,
+    backdropFilter: "blur(10px)",
     transition: {
-      duration: 0.5,
+      duration: 1,
       ease: "easeOut" as const,
       staggerChildren: 0.1
     }
@@ -276,8 +277,8 @@ export default function Home() {
     debug.info(logMessage);
 
     try {
-      debug.info("画像をリサイズ中...");
-      const resizedImage = await resizeImage(capturedImage, 1024);
+      debug.info("画像をリサイズ中（長辺512px）...");
+      const resizedImage = await resizeImage(capturedImage, 512);
 
       const resizedInfo = await debug.getImageInfo(resizedImage);
       debug.success("リサイズ完了", resizedInfo);

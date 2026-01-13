@@ -69,9 +69,12 @@ body {
 }
 
 @keyframes sparkle {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 0.6;
   }
+
   50% {
     opacity: 1;
   }
@@ -86,13 +89,16 @@ body {
     0 4px 30px rgba(0, 0, 0, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   animation: float 6s ease-in-out infinite;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(0px);
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-8px);
   }
@@ -115,12 +121,15 @@ body {
 }
 
 @keyframes frame-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow:
       0 8px 32px rgba(212, 165, 116, 0.3),
       inset 0 -4px 12px rgba(212, 165, 116, 0.2),
       inset 0 4px 8px rgba(255, 255, 255, 0.5);
   }
+
   50% {
     box-shadow:
       0 8px 40px rgba(212, 165, 116, 0.5),
@@ -151,14 +160,12 @@ body {
   right: -6px;
   bottom: -6px;
   border-radius: 50%;
-  background: conic-gradient(
-    from 0deg,
-    transparent,
-    rgba(212, 165, 116, 0.6),
-    transparent,
-    rgba(200, 91, 82, 0.4),
-    transparent
-  );
+  background: conic-gradient(from 0deg,
+      transparent,
+      rgba(212, 165, 116, 0.6),
+      transparent,
+      rgba(200, 91, 82, 0.4),
+      transparent);
   animation: border-rotate 4s linear infinite;
   z-index: -1;
   opacity: 0.5;
@@ -168,6 +175,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -214,7 +222,9 @@ body {
   0% {
     left: -100%;
   }
-  50%, 100% {
+
+  50%,
+  100% {
     left: 100%;
   }
 }
@@ -293,6 +303,7 @@ body {
     transform: scale(0.8);
     opacity: 0.8;
   }
+
   100% {
     transform: scale(1.2);
     opacity: 0;
@@ -316,9 +327,12 @@ body {
 }
 
 @keyframes shutter-inner-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     box-shadow: 0 0 0 0 rgba(200, 91, 82, 0.4);
   }
+
   50% {
     box-shadow: 0 0 12px 4px rgba(200, 91, 82, 0.3);
   }
@@ -326,10 +340,13 @@ body {
 
 /* ローディングアニメーション */
 @keyframes pulse-glow {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.7;
     transform: scale(1.05);
@@ -344,6 +361,7 @@ body {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

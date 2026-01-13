@@ -1,8 +1,7 @@
 "use client";
 
-import { downloadImage, copyImageToClipboard } from "@/lib/imageUtils";
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { downloadImage } from "@/lib/imageUtils";
+import { motion } from "framer-motion";
 
 interface ResultDisplayProps {
   imageData: string;
@@ -75,67 +74,22 @@ export default function ResultDisplay({
   imageData,
   onReset,
 }: ResultDisplayProps) {
-  const [copySuccess, setCopySuccess] = useState(false);
-
   // ダウンロード
   const handleDownload = () => {
     const timestamp = new Date().toISOString().slice(0, 10);
     downloadImage(imageData, `lovot-memory-${timestamp}.png`);
   };
 
-  // Xでシェア（Web Share APIを使用）
-  const handleShareX = async () => {
-    const shareText = "#LOVOTMEMORYSTUDIO #ひらかたパーク #LOVOT";
-
-    // Web Share APIが使える場合は画像付きでシェア
-    if (navigator.share && navigator.canShare) {
-      try {
-        // Base64を Blob に変換
-        const byteCharacters = atob(imageData);
-        const byteNumbers = new Array(byteCharacters.length);
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: "image/png" });
-        const file = new File([blob], "lovot-memory.png", { type: "image/png" });
-
-        const shareData = {
-          text: shareText,
-          files: [file],
-        };
-
-        if (navigator.canShare(shareData)) {
-          await navigator.share(shareData);
-          return;
-        }
-      } catch (error) {
-        console.log("Web Share API failed:", error);
-      }
-    }
-
-    // フォールバック：画像をクリップボードにコピーしてからTwitterを開く
-    const success = await copyImageToClipboard(imageData);
-    if (success) {
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 3000);
-    }
-    // Twitterを開く（テキストのみ）
+  // Xでシェア
+  const handleShareX = () => {
+    const shareText = "#LOVOT✖️ひらかたパーク";
     const encodedText = encodeURIComponent(shareText);
     window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, "_blank");
   };
 
-  // Instagramでシェア（クリップボードにコピー）
-  const handleShareInstagram = async () => {
-    const success = await copyImageToClipboard(imageData);
-    if (success) {
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 3000);
-    } else {
-      // フォールバック：ダウンロード
-      handleDownload();
-      alert("画像をダウンロードしました。Instagramで投稿してください！");
-    }
+  // Instagramでシェア
+  const handleShareInstagram = () => {
+    window.open("https://instagram.com", "_blank");
   };
 
   return (
@@ -243,27 +197,6 @@ export default function ResultDisplay({
             </motion.button>
           </motion.div>
 
-          {/* コピー成功メッセージ */}
-          <AnimatePresence>
-            {copySuccess && (
-              <motion.p
-                initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.9 }}
-                className="text-center text-green-600 text-sm font-medium bg-green-50 py-2 px-4 rounded-full"
-              >
-                <motion.span
-                  initial={{ rotate: 0 }}
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 0.5 }}
-                  className="inline-block mr-1"
-                >
-                  ✓
-                </motion.span>
-                画像をコピーしました！貼り付けてシェアしてください
-              </motion.p>
-            )}
-          </AnimatePresence>
         </motion.div>
 
         {/* もう一度ボタン */}

@@ -23,37 +23,33 @@ export async function fileToBase64(file: File | Blob): Promise<string> {
 
 /**
  * 画像をリサイズしてBase64で返す
- * API負荷軽減のため、大きな画像を縮小
+ * 長辺を指定サイズにリサイズ（比率維持）
  * @param base64 元のBase64画像
- * @param maxSize 最大サイズ（px）
+ * @param longEdge 長辺のサイズ（px）
  * @param quality JPEG品質 (0-1)
  * @returns リサイズ後のBase64文字列
  */
 export async function resizeImage(
   base64: string,
-  maxSize: number = 1024,
+  longEdge: number = 512,
   quality: number = 0.85
 ): Promise<string> {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
       const canvas = document.createElement("canvas");
-      let { width, height } = img;
+      const { width, height } = img;
 
-      // アスペクト比を維持してリサイズ
-      if (width > height && width > maxSize) {
-        height = (height * maxSize) / width;
-        width = maxSize;
-      } else if (height > maxSize) {
-        width = (width * maxSize) / height;
-        height = maxSize;
-      }
+      // 長辺が指定サイズになるようスケール計算
+      const scale = longEdge / Math.max(width, height);
+      const newWidth = Math.round(width * scale);
+      const newHeight = Math.round(height * scale);
 
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = newWidth;
+      canvas.height = newHeight;
 
       const ctx = canvas.getContext("2d")!;
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
       // Base64で返す（プレフィックスなし）
       const dataUrl = canvas.toDataURL("image/jpeg", quality);
