@@ -27,7 +27,7 @@ export const API_CONFIGS: Record<ApiProvider, ApiConfig> = {
 // =============================================
 // ここで使用するAPIを手動で切り替えてください
 // =============================================
-export const CURRENT_API_PROVIDER: ApiProvider = "gemini";
+export const CURRENT_API_PROVIDER: ApiProvider = "openrouter";
 // "gemini" または "openrouter" を設定
 
 // 現在の設定を取得
