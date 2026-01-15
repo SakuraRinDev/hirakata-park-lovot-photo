@@ -8,6 +8,7 @@ import DebugPanel from "@/components/DebugPanel";
 import MusicPlayer from "@/components/MusicPlayer";
 import { resizeImage } from "@/lib/imageUtils";
 import { debug } from "@/lib/debug";
+import { getApiEndpoint, getCurrentApiConfig } from "@/config/api";
 
 // アニメーション設定
 const pageVariants = {
@@ -354,7 +355,8 @@ export default function Home() {
 
   // ポスター生成
   const handleGeneratePoster = useCallback(() => {
-    generateImage("/api/generate-poster", "ポスター生成を開始します");
+    const apiConfig = getCurrentApiConfig();
+    generateImage(getApiEndpoint(), `ポスター生成を開始します (${apiConfig.name})`);
   }, [generateImage]);
 
   // リセット
