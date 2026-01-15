@@ -120,8 +120,12 @@ export async function POST(request: NextRequest) {
             ],
           },
         ],
-        // 画像生成用のパラメータ
-        response_format: { type: "image" },
+        // 画像生成用のパラメータ（modalitiesで画像出力を指定）
+        modalities: ["image", "text"],
+        // アスペクト比を16:9に固定（Gemini APIと同じ）
+        image_config: {
+          aspect_ratio: "16:9",
+        },
       }),
     });
 
@@ -136,10 +140,12 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json();
 
-    // レスポンスから画像を抽出
-    const content = data.choices?.[0]?.message?.content;
+    console.log("OpenRouter response:", JSON.stringify(data, null, 2).substring(0, 500));
 
-    if (!content) {
+    // レスポンスから画像を抽出
+    const message = data.choices?.[0]?.message;
+
+    if (!message) {
       return NextResponse.json(
         { error: "画像生成に失敗しました" },
         { status: 500 }
@@ -147,14 +153,15 @@ export async function POST(request: NextRequest) {
     }
 
     // OpenRouterの画像レスポンス形式を処理
-    // 画像はbase64またはURLで返される可能性がある
+    // 画像は message.images フィールドで返される
     let imageData: string;
     let mimeType = "image/png";
 
-    if (typeof content === "string") {
-      // base64形式の場合
-      if (content.startsWith("data:image")) {
-        const matches = content.match(/^data:([^;]+);base64,(.+)$/);
+    // 新しい形式: message.images から取得
+    if (message.images && Array.isArray(message.images) && message.images.length > 0) {
+      const imageUrl = message.images[0]?.image_url?.url;
+      if (imageUrl?.startsWith("data:image")) {
+        const matches = imageUrl.match(/^data:([^;]+);base64,(.+)$/);
         if (matches) {
           mimeType = matches[1];
           imageData = matches[2];
@@ -164,24 +171,20 @@ export async function POST(request: NextRequest) {
             { status: 500 }
           );
         }
-      } else if (content.match(/^[A-Za-z0-9+/=]+$/)) {
-        // 純粋なbase64の場合
-        imageData = content;
       } else {
-        // テキストレスポンスの場合（画像生成に対応していない可能性）
-        console.log("OpenRouter response (text):", content.substring(0, 200));
         return NextResponse.json(
-          { error: "このモデルは画像生成に対応していません。Gemini APIを使用してください。" },
-          { status: 400 }
+          { error: "画像URLの形式が不正です" },
+          { status: 500 }
         );
       }
-    } else if (Array.isArray(content)) {
-      // 配列形式の場合
-      const imageContent = content.find((c: any) => c.type === "image" || c.type === "image_url");
-      if (imageContent) {
-        const url = imageContent.image_url?.url || imageContent.url;
-        if (url?.startsWith("data:image")) {
-          const matches = url.match(/^data:([^;]+);base64,(.+)$/);
+    }
+    // フォールバック: message.content から取得（旧形式対応）
+    else if (message.content) {
+      const content = message.content;
+
+      if (typeof content === "string") {
+        if (content.startsWith("data:image")) {
+          const matches = content.match(/^data:([^;]+);base64,(.+)$/);
           if (matches) {
             mimeType = matches[1];
             imageData = matches[2];
@@ -191,21 +194,51 @@ export async function POST(request: NextRequest) {
               { status: 500 }
             );
           }
+        } else if (content.match(/^[A-Za-z0-9+/=]+$/)) {
+          imageData = content;
+        } else {
+          console.log("OpenRouter response (text):", content.substring(0, 200));
+          return NextResponse.json(
+            { error: "テキストレスポンスが返されました。画像生成に失敗した可能性があります。" },
+            { status: 400 }
+          );
+        }
+      } else if (Array.isArray(content)) {
+        const imageContent = content.find((c: any) => c.type === "image" || c.type === "image_url");
+        if (imageContent) {
+          const url = imageContent.image_url?.url || imageContent.url;
+          if (url?.startsWith("data:image")) {
+            const matches = url.match(/^data:([^;]+);base64,(.+)$/);
+            if (matches) {
+              mimeType = matches[1];
+              imageData = matches[2];
+            } else {
+              return NextResponse.json(
+                { error: "画像データの形式が不正です" },
+                { status: 500 }
+              );
+            }
+          } else {
+            return NextResponse.json(
+              { error: "画像URLの形式が不正です" },
+              { status: 500 }
+            );
+          }
         } else {
           return NextResponse.json(
-            { error: "画像URLの形式が不正です" },
+            { error: "生成された画像が見つかりません" },
             { status: 500 }
           );
         }
       } else {
         return NextResponse.json(
-          { error: "生成された画像が見つかりません" },
+          { error: "予期しないレスポンス形式です" },
           { status: 500 }
         );
       }
     } else {
       return NextResponse.json(
-        { error: "予期しないレスポンス形式です" },
+        { error: "レスポンスに画像が含まれていません" },
         { status: 500 }
       );
     }
