@@ -248,6 +248,14 @@ export default function GeneratingOverlay() {
           >
             素敵なポスターを作成しています
           </motion.p>
+          <motion.p
+            className="text-lovot-cream/50 text-xs mt-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+          >
+            通常2〜4分ほどかかります
+          </motion.p>
         </motion.div>
 
         {/* プログレスドット */}

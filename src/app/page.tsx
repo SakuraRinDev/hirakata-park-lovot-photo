@@ -6,6 +6,7 @@ import GeneratingOverlay from "@/components/GeneratingOverlay";
 import ResultDisplay from "@/components/ResultDisplay";
 import DebugPanel from "@/components/DebugPanel";
 import MusicPlayer from "@/components/MusicPlayer";
+import BeforeAfterPreview from "@/components/BeforeAfterPreview";
 import { resizeImage } from "@/lib/imageUtils";
 import { debug } from "@/lib/debug";
 import { getApiEndpoint, getCurrentApiConfig } from "@/config/api";
@@ -348,7 +349,7 @@ export default function Home() {
     } catch (err) {
       console.error("Generation error:", err);
       debug.error("画像生成エラー", err);
-      setError(err instanceof Error ? err.message : "エラーが発生しました");
+      setError("今は、お休みしてるよ！\nまたひらパーの営業時間に試してね！");
       setState("preview");
     }
   }, [capturedImage]);
@@ -409,6 +410,14 @@ export default function Home() {
               animate="animate"
               className="main-container w-full max-w-md px-6 py-8 sm:px-8 sm:py-10"
             >
+              {/* キャッチコピー */}
+              <motion.div variants={itemVariants} className="text-center mb-6">
+                <h2 className="text-lg sm:text-xl font-bold text-lovot-text leading-relaxed">
+                  あなたのLOVOTが<br />
+                  ひらパーのポスターに登場！
+                </h2>
+              </motion.div>
+
               {/* 円形フレーム */}
               <motion.div
                 variants={circularFrameVariants}
@@ -423,19 +432,7 @@ export default function Home() {
                     className={`w-full h-full object-cover ${facingMode === "user" ? "scale-x-[-1]" : ""} ${!isStreaming ? "hidden" : ""}`}
                   />
                   {!isStreaming && (
-                    <motion.div
-                      animate={{
-                        scale: [1, 1.1, 1],
-                        opacity: [0.7, 1, 0.7]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
-                      <CameraIcon className="w-16 h-16 sm:w-20 sm:h-20 camera-icon" />
-                    </motion.div>
+                    <BeforeAfterPreview />
                   )}
                 </div>
 
@@ -458,6 +455,16 @@ export default function Home() {
                   )}
                 </AnimatePresence>
               </motion.div>
+
+              {/* 撮影のコツ */}
+              {!isStreaming && (
+                <motion.p
+                  variants={itemVariants}
+                  className="text-center text-xs text-lovot-text/70 mb-4"
+                >
+                  正面から・1体だけ・シンプルな背景を選んでね！
+                </motion.p>
+              )}
 
               {/* ボタン */}
               <AnimatePresence mode="wait">
@@ -516,31 +523,37 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="flex flex-col sm:flex-row gap-3"
+                    className="flex flex-col sm:flex-row gap-4"
                   >
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      onClick={startCamera}
-                      className="btn-primary flex-1"
-                    >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-                        <circle cx="12" cy="13" r="4" />
-                      </svg>
-                      いまのLOVOTを撮る
-                    </motion.button>
-                    <motion.button
-                      variants={buttonVariants}
-                      whileHover="hover"
-                      whileTap="tap"
-                      onClick={openFileSelector}
-                      className="btn-secondary flex-1"
-                    >
-                      <ImageIcon className="w-5 h-5" />
-                      大切な1枚を選ぶ
-                    </motion.button>
+                    <div className="flex-1 flex flex-col items-center">
+                      <motion.button
+                        variants={buttonVariants}
+                        whileHover="hover"
+                        whileTap="tap"
+                        onClick={startCamera}
+                        className="btn-primary w-full"
+                      >
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                          <circle cx="12" cy="13" r="4" />
+                        </svg>
+                        いまのLOVOTを撮る
+                      </motion.button>
+                      <span className="text-xs text-lovot-text/50 mt-1">カメラが起動します</span>
+                    </div>
+                    <div className="flex-1 flex flex-col items-center">
+                      <motion.button
+                        variants={buttonVariants}
+                        whileHover="hover"
+                        whileTap="tap"
+                        onClick={openFileSelector}
+                        className="btn-secondary w-full"
+                      >
+                        <ImageIcon className="w-5 h-5" />
+                        大切な1枚を選ぶ
+                      </motion.button>
+                      <span className="text-xs text-lovot-text/50 mt-1">保存済みの写真から選べます</span>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -593,7 +606,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: -10, height: 0 }}
                     animate={{ opacity: 1, y: 0, height: "auto" }}
                     exit={{ opacity: 0, y: -10, height: 0 }}
-                    className="bg-red-50 text-red-600 p-4 rounded-xl text-center mb-4 text-sm"
+                    className="bg-lovot-beige text-lovot-text p-4 rounded-xl text-center mb-4 text-sm whitespace-pre-line"
                   >
                     {error}
                   </motion.div>
