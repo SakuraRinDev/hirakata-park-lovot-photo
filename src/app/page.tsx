@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, ChangeEvent } from "react";
+import { useState, useCallback, useRef, useEffect, ChangeEvent, FormEvent } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GeneratingOverlay from "@/components/GeneratingOverlay";
 import ResultDisplay from "@/components/ResultDisplay";
@@ -82,6 +82,7 @@ const buttonVariants = {
 };
 
 type AppState = "home" | "preview" | "generating" | "result";
+const APP_PASSWORD = "835072";
 
 // カメラアイコン
 function CameraIcon({ className = "w-12 h-12" }: { className?: string }) {
@@ -117,6 +118,9 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setIsStreaming] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
+  const [isAuthorized, setIsAuthorized] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -125,6 +129,29 @@ export default function Home() {
   // デバッグ情報
   const [debugImageInfo, setDebugImageInfo] = useState<any>({});
   const [debugApiInfo, setDebugApiInfo] = useState<any>({});
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("hp_auth");
+      if (stored === "1") {
+        setIsAuthorized(true);
+      }
+    }
+  }, []);
+
+  const handlePasswordSubmit = useCallback(
+    (event?: FormEvent<HTMLFormElement>) => {
+      event?.preventDefault();
+      if (passwordInput === APP_PASSWORD) {
+        sessionStorage.setItem("hp_auth", "1");
+        setIsAuthorized(true);
+        setPasswordError(null);
+      } else {
+        setPasswordError("パスワードが違います");
+      }
+    },
+    [passwordInput]
+  );
 
   // カメラ起動
   const startCamera = useCallback(async () => {
@@ -367,6 +394,43 @@ export default function Home() {
     setError(null);
     setState("home");
   }, []);
+
+  if (!isAuthorized) {
+    return (
+      <main className="min-h-screen w-full bg-[#f7f1e8] text-[#3c2b1f]">
+        <div className="mx-auto flex min-h-screen w-full max-w-3xl flex-col items-center justify-center gap-6 px-6 text-center">
+          <div className="rounded-3xl bg-white/80 px-8 py-10 shadow-lg backdrop-blur">
+            <h1 className="text-2xl font-semibold tracking-wide">パスワード入力</h1>
+            <p className="mt-3 text-sm text-[#5d4a3b]">実行するにはパスワードが必要です。</p>
+            <form className="mt-6 flex flex-col gap-3" onSubmit={handlePasswordSubmit}>
+              <input
+                type="password"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoFocus
+                value={passwordInput}
+                onChange={(event) => {
+                  setPasswordInput(event.target.value);
+                  if (passwordError) setPasswordError(null);
+                }}
+                className="w-full rounded-full border border-[#d9c6b5] bg-white px-4 py-3 text-center text-lg tracking-widest text-[#3c2b1f] outline-none focus:border-[#b08762]"
+                placeholder="******"
+              />
+              {passwordError ? (
+                <p className="text-sm text-[#c14b3a]">{passwordError}</p>
+              ) : null}
+              <button
+                type="submit"
+                className="rounded-full bg-[#d4a574] px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#c49360]"
+              >
+                解除する
+              </button>
+            </form>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col">
