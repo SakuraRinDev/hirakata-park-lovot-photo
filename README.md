@@ -184,6 +184,25 @@ OPENROUTER_API_KEY=your_key_here
 
 詳細は [DEBUG_MODE.md](./DEBUG_MODE.md) を参照してください。
 
+## 🧪 CLIデバッグモード（推奨）
+
+ブラウザを使わずにCLIだけで合成を実行できます。**デバッグ時は基本こちらを使用**してください。
+
+```bash
+# 例: Lovot画像を指定して生成
+npm run cli:generate -- --input ./public/sample-lovot.png
+
+# 例: 出力先を指定
+npm run cli:generate -- --input ./public/sample-lovot.png --output ./public/generated-images
+
+# 例: OpenRouter経由で実行
+npm run cli:generate -- --input ./public/sample-lovot.png --provider openrouter
+```
+
+補足:
+- 画像の長辺は **512px前後** にしておくとUIと同条件になります
+- `.env.local` の `GEMINI_API_KEY` / `OPENROUTER_API_KEY` を読み込みます
+
 ## 📝 ライセンス
 
 このプロジェクトは教育・イベント目的で作成されています。

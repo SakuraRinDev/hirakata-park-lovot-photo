@@ -16,9 +16,38 @@ http://localhost:3000?debug=true
 https://your-domain.com?debug=true
 ```
 
+## 🧪 CLIデバッグモード（推奨）
+
+ブラウザ不要でCLIだけで合成できるモードです。**デバッグ時は基本こちらを使用**してください。
+
+```bash
+# 例: Lovot画像を指定して生成
+npm run cli:generate -- --input ./public/sample-lovot.png
+
+# 例: テスト用Lovot画像で生成
+npm run cli:generate -- --input ./public/test-lovot.png
+
+# 例: 出力先を指定
+npm run cli:generate -- --input ./public/sample-lovot.png --output ./public/generated-images
+
+# 例: OpenRouter経由で実行
+npm run cli:generate -- --input ./public/sample-lovot.png --provider openrouter
+```
+
+補足:
+- 画像の長辺は **512px前後** にしておくとUIと同条件になります
+- `.env.local` の `GEMINI_API_KEY` / `OPENROUTER_API_KEY` を読み込みます
+
 ## 📊 デバッグパネルの機能
 
 デバッグモードを有効にすると、画面右下にデバッグパネルが表示されます。
+
+### ⏱ 10分待機のスキップ
+
+テスト時は以下のいずれかで待機をスキップできます：
+
+- `?debug=true` を付けてアクセス（デバッグモード時は自動でスキップ）
+- `NEXT_PUBLIC_SKIP_IDLE_WAIT=1` を `.env` / `.env.local` に設定
 
 ### 表示される情報
 
