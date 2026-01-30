@@ -148,6 +148,7 @@ export default function Home() {
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [isDebugMode, setIsDebugMode] = useState(false);
+  const [isUsedBefore, setIsUsedBefore] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -164,6 +165,12 @@ export default function Home() {
       const stored = sessionStorage.getItem("hp_auth");
       if (stored === "1") {
         setIsAuthorized(true);
+      }
+
+      // LocalStorageで生成済みかチェック
+      const hasGenerated = localStorage.getItem("lovot-poster-generated");
+      if (hasGenerated === "1") {
+        setIsUsedBefore(true);
       }
     }
   }, []);
@@ -484,6 +491,11 @@ export default function Home() {
       }));
 
       setGeneratedImage(data.imageData);
+
+      // LocalStorageに生成済みフラグを保存
+      localStorage.setItem("lovot-poster-generated", "1");
+      setIsUsedBefore(true);
+
       setState("result");
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -567,6 +579,57 @@ export default function Home() {
           </div>
         </div>
       </main>
+    );
+  }
+
+  // すでに生成済みの場合は制限画面を表示
+  if (isUsedBefore && !isDebugMode) {
+    return (
+      <div className="flex-1 flex flex-col">
+        <MusicPlayer />
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="main-container w-full max-w-md px-6 py-8 sm:px-8 sm:py-10 text-center"
+          >
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="mb-6 inline-block"
+            >
+              <div className="w-20 h-20 mx-auto bg-lovot-brown/20 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-lovot-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+            </motion.div>
+
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-2xl font-bold text-lovot-text mb-4"
+            >
+              ポスターは作成済みです
+            </motion.h2>
+
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-lovot-text/70 leading-relaxed"
+            >
+              この端末からはすでにポスターを<br />
+              作成しています。<br />
+              <br />
+              1台につき1回まで作成できます。<br />
+              素敵なポスターが作れましたか？
+            </motion.p>
+          </motion.div>
+        </main>
+      </div>
     );
   }
 
