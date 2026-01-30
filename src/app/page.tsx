@@ -82,7 +82,10 @@ const buttonVariants = {
 };
 
 type AppState = "home" | "preview" | "generating" | "result";
-const APP_PASSWORD = "835072";
+const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || "835072";
+const IDLE_BEFORE_GENERATE_MS = 10 * 60 * 1000;
+const SKIP_IDLE_WAIT = process.env.NEXT_PUBLIC_SKIP_IDLE_WAIT === "1";
+const IS_DEV = process.env.NODE_ENV === "development";
 
 // カメラアイコン
 function CameraIcon({ className = "w-12 h-12" }: { className?: string }) {
@@ -121,6 +124,7 @@ export default function Home() {
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [isDebugMode, setIsDebugMode] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -137,6 +141,10 @@ export default function Home() {
         setIsAuthorized(true);
       }
     }
+  }, []);
+
+  useEffect(() => {
+    setIsDebugMode(debug.isEnabled());
   }, []);
 
   const handlePasswordSubmit = useCallback(
@@ -289,6 +297,45 @@ export default function Home() {
     setState("preview");
   }, []);
 
+  const loadTestLovot = useCallback(async () => {
+    try {
+      const response = await fetch("/test-lovot.png");
+      if (!response.ok) {
+        throw new Error("テスト画像の読み込みに失敗しました");
+      }
+      const blob = await response.blob();
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            URL.revokeObjectURL(objectUrl);
+            reject(new Error("テスト画像の読み込みに失敗しました"));
+            return;
+          }
+          ctx.drawImage(img, 0, 0);
+          const jpgUrl = canvas.toDataURL("image/jpeg", 0.9);
+          URL.revokeObjectURL(objectUrl);
+          resolve(jpgUrl);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(objectUrl);
+          reject(new Error("テスト画像の読み込みに失敗しました"));
+        };
+        img.src = objectUrl;
+      });
+      const base64 = dataUrl.split(",")[1];
+      handleCapture(base64);
+    } catch (err) {
+      console.error("Test Lovot load error:", err);
+      alert("テスト画像の読み込みに失敗しました");
+    }
+  }, [handleCapture]);
+
   // 再撮影
   const handleRetake = useCallback(() => {
     setCapturedImage(null);
@@ -305,6 +352,14 @@ export default function Home() {
 
     const startTime = Date.now();
     debug.info(logMessage);
+
+    const shouldSkipIdleWait = debug.isEnabled() || SKIP_IDLE_WAIT || IS_DEV;
+    if (shouldSkipIdleWait) {
+      debug.info("テストモード: 待機をスキップします");
+    } else {
+      debug.info("生成開始前に10分間待機します");
+      await new Promise((resolve) => setTimeout(resolve, IDLE_BEFORE_GENERATE_MS));
+    }
 
     try {
       debug.info("画像をリサイズ中（長辺512px）...");
@@ -618,6 +673,20 @@ export default function Home() {
                       </motion.button>
                       <span className="text-xs text-lovot-text/50 mt-1">保存済みの写真から選べます</span>
                     </div>
+                    {isDebugMode && (
+                      <div className="flex-1 flex flex-col items-center">
+                        <motion.button
+                          variants={buttonVariants}
+                          whileHover="hover"
+                          whileTap="tap"
+                          onClick={loadTestLovot}
+                          className="btn-secondary w-full border-dashed"
+                        >
+                          テスト用LOVOTを使う
+                        </motion.button>
+                        <span className="text-xs text-lovot-text/50 mt-1">/public/test-lovot.png を使用</span>
+                      </div>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>
