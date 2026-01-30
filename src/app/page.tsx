@@ -87,6 +87,29 @@ const IDLE_BEFORE_GENERATE_MS = 10 * 60 * 1000;
 const SKIP_IDLE_WAIT = process.env.NEXT_PUBLIC_SKIP_IDLE_WAIT === "1";
 const IS_DEV = process.env.NODE_ENV === "development";
 
+function sleep(ms: number, signal?: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    const onAbort = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      signal?.removeEventListener("abort", onAbort);
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+
+    timeoutId = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+
+    signal?.addEventListener("abort", onAbort);
+  });
+}
+
 // カメラアイコン
 function CameraIcon({ className = "w-12 h-12" }: { className?: string }) {
   return (
@@ -129,6 +152,8 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const generationAbortRef = useRef<AbortController | null>(null);
+  const sessionIdRef = useRef(0);
 
   // デバッグ情報
   const [debugImageInfo, setDebugImageInfo] = useState<any>({});
@@ -199,6 +224,16 @@ export default function Home() {
       videoRef.current.srcObject = null;
     }
     setIsStreaming(false);
+  }, []);
+
+  const abortGeneration = useCallback((reason?: string) => {
+    if (generationAbortRef.current) {
+      generationAbortRef.current.abort();
+      generationAbortRef.current = null;
+      if (reason) {
+        debug.info("生成処理を中断しました", { reason });
+      }
+    }
   }, []);
 
   // カメラ切り替え
@@ -336,12 +371,20 @@ export default function Home() {
     }
   }, [handleCapture]);
 
+  const resetToHome = useCallback((reason?: string) => {
+    sessionIdRef.current += 1;
+    abortGeneration(reason);
+    stopCamera();
+    setCapturedImage(null);
+    setGeneratedImage(null);
+    setError(null);
+    setState("home");
+  }, [abortGeneration, stopCamera]);
+
   // 再撮影
   const handleRetake = useCallback(() => {
-    setCapturedImage(null);
-    setState("home");
-    setError(null);
-  }, []);
+    resetToHome("retake");
+  }, [resetToHome]);
 
   // 合成開始
   const generateImage = useCallback(async (apiEndpoint: string, logMessage: string) => {
@@ -349,6 +392,10 @@ export default function Home() {
 
     setState("generating");
     setError(null);
+
+    const requestId = sessionIdRef.current;
+    const controller = new AbortController();
+    generationAbortRef.current = controller;
 
     const startTime = Date.now();
     debug.info(logMessage);
@@ -358,12 +405,16 @@ export default function Home() {
       debug.info("テストモード: 待機をスキップします");
     } else {
       debug.info("生成開始前に10分間待機します");
-      await new Promise((resolve) => setTimeout(resolve, IDLE_BEFORE_GENERATE_MS));
+      await sleep(IDLE_BEFORE_GENERATE_MS, controller.signal);
     }
 
     try {
+      if (sessionIdRef.current !== requestId) return;
+
       debug.info("画像をリサイズ中（長辺512px）...");
       const resizedImage = await resizeImage(capturedImage, 512);
+
+      if (sessionIdRef.current !== requestId) return;
 
       const resizedInfo = await debug.getImageInfo(resizedImage);
       debug.success("リサイズ完了", resizedInfo);
@@ -392,10 +443,13 @@ export default function Home() {
         headers: {
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           lovotImageBase64: resizedImage,
         }),
       });
+
+      if (sessionIdRef.current !== requestId) return;
 
       const responseTime = Date.now();
       const totalTime = responseTime - startTime;
@@ -409,6 +463,8 @@ export default function Home() {
 
       const data = await response.json();
 
+      if (sessionIdRef.current !== requestId) return;
+
       if (!response.ok) {
         debug.error("API エラー", { status: response.status, error: data.error });
         throw new Error(data.error || "画像生成に失敗しました");
@@ -417,6 +473,7 @@ export default function Home() {
       debug.success(`画像生成完了 (${(totalTime / 1000).toFixed(2)}秒)`);
 
       const generatedInfo = await debug.getImageInfo(data.imageData);
+      if (sessionIdRef.current !== requestId) return;
       setDebugImageInfo((prev: any) => ({
         ...prev,
         generated: {
@@ -429,10 +486,19 @@ export default function Home() {
       setGeneratedImage(data.imageData);
       setState("result");
     } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      }
+      if (sessionIdRef.current !== requestId) return;
+
       console.error("Generation error:", err);
       debug.error("画像生成エラー", err);
       setError("今は、お休みしてるよ！\nまたひらパーの営業時間に試してね！");
       setState("preview");
+    } finally {
+      if (generationAbortRef.current === controller) {
+        generationAbortRef.current = null;
+      }
     }
   }, [capturedImage]);
 
@@ -444,11 +510,28 @@ export default function Home() {
 
   // リセット
   const handleReset = useCallback(() => {
-    setCapturedImage(null);
-    setGeneratedImage(null);
-    setError(null);
-    setState("home");
-  }, []);
+    resetToHome("reset");
+  }, [resetToHome]);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== "visible") {
+        resetToHome("visibilitychange");
+      }
+    };
+
+    const handlePageHide = () => {
+      resetToHome("pagehide");
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [resetToHome]);
 
   if (!isAuthorized) {
     return (
