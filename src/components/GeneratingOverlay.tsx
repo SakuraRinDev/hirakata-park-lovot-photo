@@ -254,7 +254,7 @@ export default function GeneratingOverlay() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
           >
-            10〜15分ほどかかります
+            5分〜10分かかります。
           </motion.p>
         </motion.div>
 

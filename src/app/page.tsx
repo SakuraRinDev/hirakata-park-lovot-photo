@@ -83,7 +83,8 @@ const buttonVariants = {
 
 type AppState = "home" | "preview" | "generating" | "result";
 const APP_PASSWORD = process.env.NEXT_PUBLIC_APP_PASSWORD || "835072";
-const IDLE_BEFORE_GENERATE_MS = 10 * 60 * 1000;
+const FIRST_USE_WAIT_MS = 5 * 60 * 1000;
+const SECOND_USE_WAIT_MS = 10 * 60 * 1000;
 const SKIP_IDLE_WAIT = process.env.NEXT_PUBLIC_SKIP_IDLE_WAIT === "1";
 const IS_DEV = process.env.NODE_ENV === "development";
 
@@ -411,8 +412,9 @@ export default function Home() {
     if (shouldSkipIdleWait) {
       debug.info("テストモード: 待機をスキップします");
     } else {
-      debug.info("生成開始前に10分間待機します");
-      await sleep(IDLE_BEFORE_GENERATE_MS, controller.signal);
+      const waitTime = isUsedBefore ? SECOND_USE_WAIT_MS : FIRST_USE_WAIT_MS;
+      debug.info(`${isUsedBefore ? "2回目以降" : "初回"}の利用のため、${waitTime / 1000 / 60}分間待機します`);
+      await sleep(waitTime, controller.signal);
     }
 
     try {
@@ -582,56 +584,7 @@ export default function Home() {
     );
   }
 
-  // すでに生成済みの場合は制限画面を表示
-  if (isUsedBefore && !isDebugMode) {
-    return (
-      <div className="flex-1 flex flex-col">
-        <MusicPlayer />
-        <main className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="main-container w-full max-w-md px-6 py-8 sm:px-8 sm:py-10 text-center"
-          >
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="mb-6 inline-block"
-            >
-              <div className="w-20 h-20 mx-auto bg-lovot-brown/20 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-lovot-brown" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </motion.div>
 
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-2xl font-bold text-lovot-text mb-4"
-            >
-              ポスターは作成済みです
-            </motion.h2>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-lovot-text/70 leading-relaxed"
-            >
-              この端末からはすでにポスターを<br />
-              作成しています。<br />
-              <br />
-              1台につき1回まで作成できます。<br />
-              素敵なポスターが作れましたか？
-            </motion.p>
-          </motion.div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="flex-1 flex flex-col">
